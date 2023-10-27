@@ -130,18 +130,9 @@ def iqr(prices):
     print("Granice wartości odstających: ".format(lower_bound, upper_bound))
     print("Znalezione wartości odstające: ".format(outliers))
     return [x for x in prices if lower_bound <= x <= upper_bound]
-    
 
-
-
-def main():
-    conn = sqlite3.connect('baza_danych.db')
+def add_to_database(conn,name,quantity,new_price):
     cursor = conn.cursor()
-
-    
-    name = input("Podaj nazwe towaru: ")
-    quantity = int(input("Podaj liczbę towaru: "))
-    new_price = float(input("Podaj cenę za jednostkę podstawową towaru: "))
     cursor.execute("SELECT cena FROM towary WHERE nazwa = '{}'".format(name))
     prices = [row[0] for row in cursor.fetchall()]
     plot_start(prices,name)
@@ -161,9 +152,46 @@ def main():
         cursor.execute("INSERT INTO towary (nazwa, ilosc, cena) VALUES (?, ?, ?)", ('{}'.format(name), quantity, new_price))
         conn.commit()
         print('Dodano nowy wpis')
-    
-    conn.close()
+        return True
+    return False
+
+def main():
+    conn = sqlite3.connect('baza_danych.db')
+    cursor = conn.cursor()
+
+    #Test 1
+    if(add_to_database(conn,'chleb',30,5.5) == True):
+        print('Test 1 OK') 
+    #Test 2
+    if(add_to_database(conn,'chleb',60,7.0) == False):
+        print('Test 2 OK')
+    #Test 3
+    if(add_to_database(conn,'krzeslo',90,140.0) == False):
+        print('Test 3 OK')
+    #Test 4
+    if(add_to_database(conn,'krzeslo',45,125.0) == True):
+        print('Test 4 OK')
+    #Test 5
+    if(add_to_database(conn,'parowki',30,5.0) == True):
+        print('Test 5 OK')
+    #Test 6
+    if(add_to_database(conn,'parowki',60,7.0) == False):
+        print('Test 6 OK')
+    #Test 7
+    if(add_to_database(conn,'mleko',40,5.0) == False):
+        print('Test 7 OK')
+    #Test 8
+    if(add_to_database(conn,'mleko',20, 4.0) == True):
+        print('Test 8 OK')
+    #Test 9
+    if(add_to_database(conn,'plyn',60, 10.25) == False):
+        print('Test 9 OK')
+    #Test 10
+    if(add_to_database(conn,'plyn',30,6.5) == True):
+        print('Test 10 OK')
+
+
+
 
 if __name__ == '__main__':
-    main() 
-
+    main()
